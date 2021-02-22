@@ -1,0 +1,33 @@
+name: Build Micro
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+defaults:
+  run:
+    working-directory: ./micro
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repo
+        uses: actions/checkout@v2
+      - name: Show directory
+        run: ls
+      - name: Ensure sourcd
+        run: git init && git remote add origin https://github.com/zyedidia/micro && git fetch && git checkout origin/master -ft
+      - name: Make sure upstream is good
+        run: git pull
+      - name: Build
+        run: make -j $(nproc) build
+      - name: Show directory
+        run: ls
+      - name: Release output files
+        uses: softprops/action-gh-release@v1
+        with:
+          files: micro/micro
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
